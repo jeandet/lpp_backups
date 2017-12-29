@@ -18,7 +18,9 @@ import time
 import argparse
 import smtplib
 import configparser
+import tempfile
 from  common import mail
+from  common import default_html as html
 from os.path import expanduser
 home = expanduser("~")
 
@@ -27,18 +29,6 @@ parser.add_argument("-f", "--config-file", help="config file", default=home+'/.l
 parser.add_argument("--list-modules", help="lists available modules", action="store_true")
 parser.add_argument("--sim", help="Simulation mode, just print commands", action="store_true")
 args = parser.parse_args()
-
-html_body = """
-<html>
-    <head>
-    </head>
-    <body>
-        <div>
-            <br>
-        </div>
-    </body>
-</html>
-"""
 
 
 def print_modules():
@@ -61,17 +51,30 @@ if __name__ == '__main__':
     tasks = dict(config)
     tasks.pop('mail')
     tasks.pop('DEFAULT')
+    tasks_html_output = []
+    html_body=html.html_body
     for task, task_conf in tasks.items():
         module = task_conf['type']
         print("task name: {}".format(task))
         print("task type: {}".format(module))
         try:
             mod = importlib.import_module("backup_modules." + module, "*")
-            mod.backup(simulate=args.sim, **task_conf)
+            output = mod.backup(basename=task, simulate=args.sim, **task_conf)
+            tasks_html_output.append(output.generate_html(html, name=task))
         except:
             print(traceback.format_exc())
-
-    mail.send_mail(**config['mail'], html_body="hello")
+    html_body = html_body.format(html_backup=html.html_backup.format(html_backup_steps="".join(tasks_html_output)))
+    if args.sim:
+        message = """
+=====================================================
+Sending mail:
+=====================================================
+{}
+=====================================================
+        """.format(html_body)
+        print(message)
+    else:
+        mail.send_mail(**config['mail'], html_body=html_body)
 
 
 

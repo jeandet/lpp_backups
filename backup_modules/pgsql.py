@@ -28,5 +28,6 @@ from common import utils
 
 @utils.build_dest('.pgsql')
 def backup(dest, max_history, dbmane, timestamp, user='postgres', simulate=False, *args, **kwargs):
-    utils.invoke('su',['-c', 'pg_dump {}'.format(dbmane), 'postgres'], output=dest, simulate=simulate)
+    p = utils.invoke('su',['-c', 'pg_dump {}'.format(dbmane), 'postgres'], output=dest, simulate=simulate)
+    return utils.ModuleOutput(output=dest, status=p.returncode == 0)
 

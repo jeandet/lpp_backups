@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from isc.coverage import output
 
 __author__ = "Alexis Jeandet"
 __copyright__ = "Copyright 2017, Laboratory of Plasma Physics"
@@ -27,7 +28,9 @@ __MOD_SAMPLE_CONFIG__ = """
 
 from common import utils
 
-
-@utils.build_dest('.zip')
+#tar -c --use-compress-program=pigz -f $NAME.tar.gz $NAME
+@utils.build_dest('.tar.gz')
 def backup(source, dest, max_history, timestamp, simulate=False, *args, **kwargs):
-    utils.invoke('pigz',['-r', dest, source], simulate=simulate)
+    p = utils.invoke('tar',['-c', '--use-compress-program=pigz', '-f', dest, source], simulate=simulate)
+    return utils.ModuleOutput(output=dest, status=p.returncode == 0)
+
