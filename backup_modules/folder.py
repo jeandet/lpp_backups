@@ -29,5 +29,5 @@ from common import utils
 
 
 @utils.build_dest('.zip')
-def backup(source, dest, max_history, simulate=False, *args, **kwargs):
+def backup(source, dest, max_history, timestamp, simulate=False, *args, **kwargs):
     utils.invoke('pigz',['-r', dest, source], simulate=simulate)

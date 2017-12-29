@@ -28,6 +28,18 @@ parser.add_argument("--list-modules", help="lists available modules", action="st
 parser.add_argument("--sim", help="Simulation mode, just print commands", action="store_true")
 args = parser.parse_args()
 
+html_body = """
+<html>
+    <head>
+    </head>
+    <body>
+        <div>
+            <br>
+        </div>
+    </body>
+</html>
+"""
+
 
 def print_modules():
     modules_files = [f for f in os.listdir('./backup_modules/') if f[-3:] == '.py' and f != '__init__.py']

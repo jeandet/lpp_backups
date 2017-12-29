@@ -27,5 +27,6 @@ __MOD_SAMPLE_CONFIG__ = """
 from common import utils
 
 @utils.build_dest('.pgsql')
-def backup(dest, max_history, dbmane, user='postgres', simulate=False, *args, **kwargs):
+def backup(dest, max_history, dbmane, timestamp, user='postgres', simulate=False, *args, **kwargs):
     utils.invoke('su',['-c', 'pg_dump {}'.format(dbmane), 'postgres'], output=dest, simulate=simulate)
+

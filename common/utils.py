@@ -19,18 +19,18 @@ def listify(arg):
     return arg if type(arg) is list else [arg]
 
 
-def generate_output_name(basename):
-    now = datetime.datetime.now()
-    now.isoformat()
-    return basename+'_'+now.isoformat()
+def generate_output_name(basename, timestamp):
+    return basename+'_'+timestamp.isoformat()
 
 
 def build_dest(extension):
     def build_dest_decorator(func):
         @wraps(func)
         def func_wrapper(dest, *args, **kwargs):
-            kwargs['dest'] = generate_output_name(dest) + extension
-            return  func(**kwargs)
+            timestamp = datetime.datetime.now()
+            kwargs['dest'] = generate_output_name(dest, timestamp) + extension
+            kwargs['timestamp'] = timestamp
+            return func(**kwargs)
         return func_wrapper
     return build_dest_decorator
 
@@ -43,8 +43,16 @@ def invoke(command, args, output=None, simulate=False):
         print(colored("Simulation mode",'green')+ ": " + colored(" ".join(cmd) + output, 'red'))
         return None
 
-    if type(output)  is str:
-        output = open(output,'w')
+    if type(output) is str:
+        output = open(output, 'w')
 
-    p = subprocess.run(listify(cmd) + listify(args), stdout=output)
+    p = subprocess.run(cmd, stdout=output, stderr=subprocess.PIPE)
     return p
+
+
+def find_program(program):
+    p = invoke('which', program, output=subprocess.PIPE)
+    if p.returncode == 0:
+        return p.stdout
+    else:
+        return None
