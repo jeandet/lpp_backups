@@ -19,9 +19,11 @@ import argparse
 import smtplib
 import configparser
 from  common import mail
+from os.path import expanduser
+home = expanduser("~")
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-f", "--config-file", help="config file", default='~/.lpp_backup.conf')
+parser.add_argument("-f", "--config-file", help="config file", default=home+'/.lpp_backup.conf')
 parser.add_argument("--list-modules", help="lists available modules", action="store_true")
 parser.add_argument("--sim", help="Simulation mode, just print commands", action="store_true")
 args = parser.parse_args()
@@ -41,6 +43,7 @@ if __name__ == '__main__':
         exit(0)
 
     config = configparser.ConfigParser()
+    print(args.config_file)
     config.read(args.config_file)
 
     tasks = dict(config)
