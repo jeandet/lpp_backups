@@ -14,14 +14,17 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-def send_mail(server, sender, recipients, subject, html_body):
-    print(server)
-    print(sender)
+def send_mail(server, sender, recipients, subject, html_body, username=None, password=None, port=0, use_tls='False', **kwargs):
     msg = MIMEMultipart()
     msg['Subject'] = subject
     msg['From'] = sender
     msg['To'] = recipients
     msg.attach(MIMEText(html_body, 'html'))
-    s = smtplib.SMTP(server)
+    if use_tls == 'True':
+        s = smtplib.SMTP_SSL(server, port)
+    else:
+        s = smtplib.SMTP(server, port)
+    if username is not None and password is not None:
+        s.login(username, password)
     s.sendmail(sender, recipients, msg.as_string())
     s.quit()

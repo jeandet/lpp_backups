@@ -59,5 +59,7 @@ if __name__ == '__main__':
         except:
             print(traceback.format_exc())
 
+    mail.send_mail(**config['mail'], html_body="hello")
+
 
 
