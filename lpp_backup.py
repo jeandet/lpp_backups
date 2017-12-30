@@ -19,7 +19,7 @@ import argparse
 import smtplib
 import configparser
 import tempfile
-from  common import mail
+from  common import mail, utils
 from  common import default_html as html
 from os.path import expanduser
 home = expanduser("~")
@@ -53,16 +53,22 @@ if __name__ == '__main__':
     tasks.pop('DEFAULT')
     tasks_html_output = []
     html_body=html.html_body
+
+    backups = {}
+    garbage_collector = {}
     for task, task_conf in tasks.items():
         module = task_conf['type']
         print("task name: {}".format(task))
         print("task type: {}".format(module))
         try:
             mod = importlib.import_module("backup_modules." + module, "*")
-            output = mod.backup(basename=task, simulate=args.sim, **task_conf)
-            tasks_html_output.append(output.generate_html(html, name=task))
+            backups[task] = mod.backup(basename=task, simulate=args.sim, **task_conf)
+            garbage_collector[task] = utils.garbage_collect(simulate=args.sim, **task_conf)
         except:
             print(traceback.format_exc())
+
+    for task, output in backups.items():
+        tasks_html_output.append(output.generate_html(html, name=task))
     html_body = html_body.format(html_backup=html.html_backup.format(html_backup_steps="".join(tasks_html_output)))
     if args.sim:
         message = """
