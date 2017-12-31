@@ -32,5 +32,5 @@ from common import utils
 @utils.build_dest('.tar.gz')
 def backup(source, dest, max_history, timestamp, simulate=False, *args, **kwargs):
     p = utils.invoke('tar',['-c', '--use-compress-program=pigz', '-f', dest, source], simulate=simulate)
-    return utils.ModuleOutput(output=dest, status=p.returncode == 0)
+    return utils.ModuleOutput(output=dest, status=p.returncode == 0, **kwargs)
 

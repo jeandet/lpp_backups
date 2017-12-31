@@ -56,20 +56,24 @@ if __name__ == '__main__':
 
     backups = {}
     garbage_collector = {}
+
     for task, task_conf in tasks.items():
-        module = task_conf['type']
+        plugin_name = task_conf['type']
+        print('=====================================================')
         print("task name: {}".format(task))
-        print("task type: {}".format(module))
+        print("task type: {}".format(plugin_name))
         try:
-            mod = importlib.import_module("backup_modules." + module, "*")
-            backups[task] = mod.backup(basename=task, simulate=args.sim, **task_conf)
+            mod = importlib.import_module("backup_modules." + plugin_name, "*")
+            backups[task] = mod.backup(task_name=task, simulate=args.sim, **task_conf)
             garbage_collector[task] = utils.garbage_collect(simulate=args.sim, **task_conf)
         except:
             print(traceback.format_exc())
 
     for task, output in backups.items():
-        tasks_html_output.append(output.generate_html(html, name=task))
+        tasks_html_output.append(output.generate_html(html))
+
     html_body = html_body.format(html_backup=html.html_backup.format(html_backup_steps="".join(tasks_html_output)))
+
     if args.sim:
         message = """
 =====================================================

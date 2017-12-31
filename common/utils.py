@@ -26,23 +26,26 @@ def generate_output_name(basename, timestamp):
     return basename+'_'+timestamp.isoformat().replace(':', '-')
 
 
-def invoke(command, args, output=None, simulate=False):
+def invoke(command, args, stdout=None, stdin=None, simulate=False):
     cmd = listify(command) + listify(args)
 
     if simulate:
-        output = "" if output is None else " > "+str(output)
-        print(colored("Simulation mode",'green')+ ": " + colored(" ".join(cmd) + output, 'red'))
+        stdout = "" if stdout is None else " > " + str(stdout)
+        stdin = "" if stdin is None else " < " + str(stdin)
+        print(colored("Simulation mode",'green') + ": " + colored(" ".join(cmd) + stdin + stdout, 'red'))
         return subprocess.run('true', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    if type(output) is str:
-        output = open(output, 'w')
+    if type(stdout) is str:
+        stdout = open(stdout, 'w')
+    if type(stdin) is str:
+        stdin = open(stdin, 'w')
 
-    p = subprocess.run(cmd, stdout=output, stderr=subprocess.PIPE)
+    p = subprocess.run(cmd, stdout=stdout, stdin=stdin, stderr=subprocess.PIPE)
     return p
 
 
 def find_program(program):
-    p = invoke('which', program, output=subprocess.PIPE)
+    p = invoke('which', program, stdout=subprocess.PIPE)
     if p.returncode == 0:
         return p.stdout
     else:
@@ -65,17 +68,18 @@ def garbage_collect(dest, max_history, simulate=False, **kwargs):
 
 
 class ModuleOutput:
-    def __init__(self, output, status, file_size=0):
+    def __init__(self, output, status, task_name, file_size=0, **kwargs):
         self.output = output
         self.status = status
+        self.task_name = task_name
         if os.path.isfile(output):
             self.file_size = os.stat(output).st_size
         else:
             self.file_size = 0
 
-    def generate_html(self, html_template, name):
+    def generate_html(self, html_template):
         status = html_template.html_success if self.status else html_template.html_fail
-        return html_template.html_backup_step.format(name=name,
+        return html_template.html_backup_step.format(name=self.task_name,
                                                      output=self.output,
                                                      status=status,
                                                      size=humanize.filesize.naturalsize(self.file_size))
@@ -84,15 +88,16 @@ class ModuleOutput:
 def build_dest(extension):
     def build_dest_decorator(func):
         @wraps(func)
-        def func_wrapper(dest, basename, *args, **kwargs):
+        def func_wrapper(dest, task_name, *args, **kwargs):
             pathlib.Path(dest).mkdir(parents=True, exist_ok=True)
             timestamp = datetime.datetime.now()
-            kwargs['dest'] = generate_output_name(dest+'/'+basename, timestamp) + extension
+            kwargs['dest'] = generate_output_name(dest+'/'+task_name, timestamp) + extension
             kwargs['timestamp'] = timestamp
+            kwargs['task_name'] = task_name
             try:
                 out = func(**kwargs)
             except:
-                out = ModuleOutput(output="None", status=False)
+                out = ModuleOutput(output="None", status=False, **kwargs)
             return out
         return func_wrapper
     return build_dest_decorator

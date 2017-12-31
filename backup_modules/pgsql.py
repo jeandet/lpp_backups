@@ -24,10 +24,24 @@ __MOD_SAMPLE_CONFIG__ = """
     dbmane = mydb
 """
 
+import tempfile
+import os
 from common import utils
 
-@utils.build_dest('.pgsql')
+@utils.build_dest('.pgsql.tar.gz')
 def backup(dest, max_history, dbmane, timestamp, user='postgres', simulate=False, *args, **kwargs):
-    p = utils.invoke('su',['-c', 'pg_dump {}'.format(dbmane), 'postgres'], output=dest, simulate=simulate)
-    return utils.ModuleOutput(output=dest, status=p.returncode == 0)
+    status = False
+    print(kwargs)
+    pg_args = []
+    if "host" in kwargs:
+        pg_args += ["-h"] + [kwargs["host"]]
+    pg_args += ["-U"] + [user]
+    pg_args.append(dbmane)
+    with open(dest[:-7], "w") as fp:
+        p = utils.invoke('pg_dump', pg_args, stdout=fp, simulate=simulate)
+        fp.flush()
+        p2 = utils.invoke('tar', ['-c', '--use-compress-program=pigz', '-f', dest, fp.name], simulate=simulate)
+        status = (p.returncode == 0) & (p2.returncode == 0)
+    os.remove(dest[:-7])
+    return utils.ModuleOutput(output=dest, status=status, **kwargs)
 
