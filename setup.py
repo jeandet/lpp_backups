@@ -9,7 +9,7 @@ setup(name='lpp_backups',
       author='Alexis Jeandet',
       author_email='alexis.jeandet@member.fsf.org',
       license='GPLv2+',
-      packages=['common','backup_modules'],
+      packages=['common','backup'],
       install_requires=[
             'argparse',
             'configparser',

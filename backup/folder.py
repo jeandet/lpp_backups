@@ -19,7 +19,7 @@ __MOD_SAMPLE_CONFIG__ = """
     Sample config:
     ------------------------------------------------------------------
     [my-folder]
-    type = folder
+    type = backup:folder
     dest = /some_path/backups/
     max_history = 10
     path = /some_path/folder_to_backup

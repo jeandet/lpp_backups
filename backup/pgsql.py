@@ -18,7 +18,7 @@ __MOD_SAMPLE_CONFIG__ = """
     Sample config:
     ------------------------------------------------------------------
     [my-database]
-    type = mysql
+    type = backup:pgsql
     dest = /some_path/backups/db
     max_history = 10
     dbmane = mydb
@@ -30,17 +30,17 @@ import tempfile
 import os
 from common import utils
 
-@utils.build_dest('.sql.tar.gz')
+@utils.build_dest('.pgsql.tar.gz')
 def backup(dest, max_history, dbmane, timestamp, user='postgres', simulate=False, *args, **kwargs):
     status = False
     print(kwargs)
-    my_args = []
+    pg_args = []
     if "host" in kwargs:
-        my_args += ["-h"] + [kwargs["host"]]
-    my_args += ["-u"] + [user]
-    my_args.append(dbmane)
+        pg_args += ["-h"] + [kwargs["host"]]
+    pg_args += ["-U"] + [user]
+    pg_args.append(dbmane)
     with open(dest[:-7], "w") as fp:
-        p = utils.invoke('mysqldump', my_args, stdout=fp, simulate=simulate)
+        p = utils.invoke('pg_dump', pg_args, stdout=fp, simulate=simulate)
         fp.flush()
         p2 = utils.invoke('tar', ['-c', '--use-compress-program=pigz', '-f', dest, fp.name], simulate=simulate)
         status = (p.returncode == 0) & (p2.returncode == 0)

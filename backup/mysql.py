@@ -10,15 +10,15 @@ __email__ = "alexis.jeandet@member.fsf.org"
 __status__ = "Development"
 
 
-__MOD_NAME__="PostgreSQL(pgsql)"
+__MOD_NAME__="MySLQ(mysql)"
 
-__MOD_DESC__ = "performs backups on PostgreSQL databases"
+__MOD_DESC__ = "performs backups on MySQL databases"
 
 __MOD_SAMPLE_CONFIG__ = """
     Sample config:
     ------------------------------------------------------------------
     [my-database]
-    type = pgsql
+    type = backup:mysql
     dest = /some_path/backups/db
     max_history = 10
     dbmane = mydb
@@ -26,21 +26,20 @@ __MOD_SAMPLE_CONFIG__ = """
     host = some_host
 """
 
-import tempfile
 import os
 from common import utils
 
-@utils.build_dest('.pgsql.tar.gz')
+@utils.build_dest('.sql.tar.gz')
 def backup(dest, max_history, dbmane, timestamp, user='postgres', simulate=False, *args, **kwargs):
     status = False
     print(kwargs)
-    pg_args = []
+    my_args = []
     if "host" in kwargs:
-        pg_args += ["-h"] + [kwargs["host"]]
-    pg_args += ["-U"] + [user]
-    pg_args.append(dbmane)
+        my_args += ["-h"] + [kwargs["host"]]
+    my_args += ["-u"] + [user]
+    my_args.append(dbmane)
     with open(dest[:-7], "w") as fp:
-        p = utils.invoke('pg_dump', pg_args, stdout=fp, simulate=simulate)
+        p = utils.invoke('mysqldump', my_args, stdout=fp, simulate=simulate)
         fp.flush()
         p2 = utils.invoke('tar', ['-c', '--use-compress-program=pigz', '-f', dest, fp.name], simulate=simulate)
         status = (p.returncode == 0) & (p2.returncode == 0)

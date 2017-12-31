@@ -27,10 +27,13 @@ args = parser.parse_args()
 
 
 def print_modules():
-    modules_files = [f for f in os.listdir('./backup_modules/') if f[-3:] == '.py' and f != '__init__.py']
-    for m_file in modules_files:
-        mod = importlib.import_module("backup_modules." + m_file[:-3], "*")
-        print("- {}, {}.".format(mod.__MOD_NAME__, mod.__MOD_DESC__))
+
+    for mode_type in ('backup','monitor'):
+        modules_files = [f for f in os.listdir(mode_type) if f[-3:] == '.py' and f != '__init__.py']
+        print(mode_type+' modules:')
+        for m_file in modules_files:
+            mod = importlib.import_module(mode_type+"." + m_file[:-3], "*")
+            print("- {}, {}.".format(mod.__MOD_NAME__, mod.__MOD_DESC__))
 
 
 if __name__ == '__main__':
@@ -50,17 +53,21 @@ if __name__ == '__main__':
     html_body=html.html_body
 
     backups = {}
+    monitors = {}
     garbage_collector = {}
 
     for task, task_conf in tasks.items():
-        plugin_name = task_conf['type']
+        task_type, plugin_name = task_conf['type'].split(':')
         print('=====================================================')
         print("task name: {}".format(task))
         print("task type: {}".format(plugin_name))
         try:
-            mod = importlib.import_module("backup_modules." + plugin_name, "*")
-            backups[task] = mod.backup(task_name=task, simulate=args.sim, **task_conf)
-            garbage_collector[task] = utils.garbage_collect(simulate=args.sim, **task_conf)
+            mod = importlib.import_module(task_type+"." + plugin_name, "*")
+            if task_type == 'backup':
+                backups[task] = mod.backup(task_name=task, simulate=args.sim, **task_conf)
+                garbage_collector[task] = utils.garbage_collect(simulate=args.sim, **task_conf)
+            elif task_type == 'monitor':
+                monitors[task] = mod.monitor(task_name=task, simulate=args.sim, **task_conf)
         except:
             print(traceback.format_exc())
 
