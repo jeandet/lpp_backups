@@ -23,6 +23,9 @@ html_body = """
         <div>
             {html_backup}
         </div>
+        <div>
+            {html_monitor}
+        </div>
     </body>
 </html>
 """
@@ -46,6 +49,20 @@ html_backup_step = """
     <td>{status}</th>
     <td>{size}</th>
   </tr>
+"""
+
+html_monitor = """
+<ul>
+    {html_monitor_elements}
+</ul>
+"""
+
+html_monitor_element = """
+<li>{name}
+    <ul>
+      <li>Usage: {usage} on {available} available ({free} free)</li>
+    </ul>
+</li>
 """
 
 html_success='<font color="green">Success</font>'

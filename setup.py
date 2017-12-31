@@ -9,7 +9,7 @@ setup(name='lpp_backups',
       author='Alexis Jeandet',
       author_email='alexis.jeandet@member.fsf.org',
       license='GPLv2+',
-      packages=['common','backup'],
+      packages=['common', 'backup', 'monitor'],
       install_requires=[
             'argparse',
             'configparser',
@@ -17,7 +17,8 @@ setup(name='lpp_backups',
             'humanize',
             'termcolor',
             'pathlib',
-            'email'
+            'email',
+            'psutil'
       ],
       zip_safe=False,
       scripts=['lpp_backup'],

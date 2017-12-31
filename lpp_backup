@@ -49,7 +49,8 @@ if __name__ == '__main__':
     tasks = dict(config)
     tasks.pop('mail')
     tasks.pop('DEFAULT')
-    tasks_html_output = []
+    backups_html_output = []
+    monitors_html_output = []
     html_body=html.html_body
 
     backups = {}
@@ -72,9 +73,15 @@ if __name__ == '__main__':
             print(traceback.format_exc())
 
     for task, output in backups.items():
-        tasks_html_output.append(output.generate_html(html))
+        backups_html_output.append(output.generate_html(html))
 
-    html_body = html_body.format(html_backup=html.html_backup.format(html_backup_steps="".join(tasks_html_output)))
+    for task, output in monitors.items():
+        monitors_html_output.append(output.generate_html(html))
+
+    html_body = html_body.format(
+        html_backup=html.html_backup.format(html_backup_steps="".join(backups_html_output)),
+        html_monitor=html.html_monitor.format(html_monitor_elements="".join(monitors_html_output))
+    )
 
     if args.sim:
         message = """

@@ -85,6 +85,21 @@ class ModuleOutput:
                                                      size=humanize.filesize.naturalsize(self.file_size))
 
 
+class MonitorOutput:
+    def __init__(self, path, usage, free, available, task_name, **kwargs):
+        self.usage = usage
+        self.path = path
+        self.free = free
+        self.available = available
+        self.task_name = task_name
+
+    def generate_html(self, html_template):
+        return html_template.html_monitor_element.format(name=self.task_name + " " + self.path,
+                                                         usage=humanize.filesize.naturalsize(self.usage),
+                                                         available=humanize.filesize.naturalsize(self.available),
+                                                         free=humanize.filesize.naturalsize(self.free))
+
+
 def build_dest(extension):
     def build_dest_decorator(func):
         @wraps(func)
