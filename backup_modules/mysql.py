@@ -22,13 +22,15 @@ __MOD_SAMPLE_CONFIG__ = """
     dest = /some_path/backups/db
     max_history = 10
     dbmane = mydb
+    user = db_user
+    host = some_host
 """
 
 import tempfile
 import os
 from common import utils
 
-@utils.build_dest('.pgsql.tar.gz')
+@utils.build_dest('.sql.tar.gz')
 def backup(dest, max_history, dbmane, timestamp, user='postgres', simulate=False, *args, **kwargs):
     status = False
     print(kwargs)

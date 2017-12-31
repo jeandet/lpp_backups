@@ -22,6 +22,8 @@ __MOD_SAMPLE_CONFIG__ = """
     dest = /some_path/backups/db
     max_history = 10
     dbmane = mydb
+    user = db_user
+    host = some_host
 """
 
 import tempfile
