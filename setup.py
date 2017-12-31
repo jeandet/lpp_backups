@@ -17,7 +17,6 @@ setup(name='lpp_backups',
             'humanize',
             'termcolor',
             'pathlib',
-            'email',
             'psutil'
       ],
       zip_safe=False,
