@@ -10,15 +10,10 @@ __email__ = "alexis.jeandet@member.fsf.org"
 __status__ = "Development"
 
 import importlib
-import datetime
 import traceback
 import os
-import sys
-import time
 import argparse
-import smtplib
 import configparser
-import tempfile
 from  common import mail, utils
 from  common import default_html as html
 from os.path import expanduser
